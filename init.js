@@ -1,0 +1,6 @@
+const { core } = lo.library('core')
+core.mmio_signal()
+core.sync()
+core.mmio_signal()
+core.sync()
+core.reboot(core.LINUX_REBOOT_CMD_HALT)
