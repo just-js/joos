@@ -361,7 +361,8 @@ const kvm_msrs_size = 8
 const kvm_msr_entry_size = 16
 const COM1_PORT_BASE = 0x03f8
 const COM1_PORT_SIZE = 8
-const RAM_SIZE = 128 * 1024 * 1024
+//const RAM_SIZE = 80 * 1024 * 1024
+const RAM_SIZE = 40 * 1024 * 1024
 const RAM_BASE = 0
 const UART_TX = 0
 const UART_LSR = 5
@@ -394,14 +395,14 @@ debug('open /dev/kvm')
 const console_cmd = lo.args[2] || 'hvc0'
 //const console_cmd = 'hvc0'
 //const cmdline = cstr('i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd ro selinux=0 mitigations=off noapic pci=off nomodules random.trust_cpu=on audit=0 panic=-1 zswap.enabled=0 console=ttyS0,115200 acpi=off')
-const cmdline = cstr(`ro reboot=k pci=off selinux=0 nomodule i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd selinux=0 noapic mitigations=off random.trust_cpu=on panic=-1 console=${console_cmd} quiet`)
+const cmdline = cstr(`ro reboot=k i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd noapic mitigations=off random.trust_cpu=on panic=-1 console=${console_cmd} quiet`)
 last = lo.hrtime()
-run_vm(kvm_fd)
-/*
+//run_vm(kvm_fd)
+
 while (1) {
   run_vm(kvm_fd)
   console.log('')
   lo.core.usleep(1000000)
   last = boot_time = lo.hrtime()
 }
-*/
+

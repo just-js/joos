@@ -29,28 +29,30 @@ lo vmm.js
 
 ### init.c
 
+- guest vm allocated 4 MB RAM
+
 ```shell
-KVM_CREATE_VM                   16098987   16098987 rss 32501760
-KVM_SET_TSS_ADDR                   68847   16167834 rss 32501760
-KVM_SET_IDENTITY_MAP_ADDR          84237   16252071 rss 32501760
-mmap guest ram                     53053   16305124 rss 32501760
-KVM_SET_USER_MEMORY_REGION        102109   16407233 rss 32501760
-KVM_CREATE_VCPU                   516024   16923257 rss 32501760
-init sreg                          75972   16999229 rss 32501760
-init reg                           46470   17045699 rss 32501760
-init cpuid                         77125   17122824 rss 32501760
-init msrs                          34155   17156979 rss 32501760
-read bzImage                      983633   18140612 rss 34205696
-load kernel image                1039257   19179869 rss 36040704
-set bootparams                     25038   19204907 rss 36040704
-read initrd                       440879   19645786 rss 36827136
-load initrd                       580298   20226084 rss 37744640
-load bootparams                    18363   20244447 rss 37744640
-mmap runfd                         25930   20270377 rss 37744640
-start                              22115   20292492 rss 37744640
-guest start                     35833982   56126474 rss 60944384
-guest exit                         54680   56181154 rss 60944384
-cleanup                         60008062  116189216 rss 35192832
+KVM_CREATE_VM                   15870335   15870335 rss 48254976
+KVM_SET_TSS_ADDR                   46781   15917116 rss 48254976
+KVM_SET_IDENTITY_MAP_ADDR          33769   15950885 rss 48254976
+mmap guest ram                     29475   15980360 rss 48254976
+KVM_SET_USER_MEMORY_REGION         80483   16060843 rss 48254976
+KVM_CREATE_VCPU                   592125   16652968 rss 48254976
+init sreg                          71544   16724512 rss 48254976
+init reg                           28386   16752898 rss 48254976
+init cpuid                         70984   16823882 rss 48254976
+init msrs                          33211   16857093 rss 48254976
+read bzImage                      432902   17289995 rss 48254976
+load kernel image                1103234   18393229 rss 49958912
+set bootparams                     20578   18413807 rss 49958912
+read initrd                       106857   18520664 rss 49958912
+load initrd                       253248   18773912 rss 50483200
+load bootparams                    15972   18789884 rss 50483200
+mmap runfd                         24961   18814845 rss 50483200
+start                              15053   18829898 rss 50483200
+guest start                     35100907   53930805 rss 73551872
+guest exit                         46234   53977039 rss 73551872
+cleanup                         41463018   95440057 rss 48254976
 ```
 
 This shows timing at steady state from running the compiled version of vmm.js against an initrd using the init.c c program.
@@ -58,27 +60,27 @@ This shows timing at steady state from running the compiled version of vmm.js ag
 ### init.js
 
 ```shell
-KVM_CREATE_VM                   15634088   15634088 rss 56156160
-KVM_SET_TSS_ADDR                   51974   15686062 rss 56156160
-KVM_SET_IDENTITY_MAP_ADDR         141317   15827379 rss 56156160
-mmap guest ram                     48397   15875776 rss 56156160
-KVM_SET_USER_MEMORY_REGION         95573   15971349 rss 56156160
-KVM_CREATE_VCPU                   447349   16418698 rss 56156160
-init sreg                          62923   16481621 rss 56156160
-init reg                           28553   16510174 rss 56156160
-init cpuid                         65826   16576000 rss 56156160
-init msrs                          30608   16606608 rss 56156160
-read bzImage                      421702   17028310 rss 56156160
-load kernel image                1085252   18113562 rss 57860096
-set bootparams                     30624   18144186 rss 57860096
-read initrd                      6632797   24776983 rss 57860096
-load initrd                     18768147   43545130 rss 90234880
-load bootparams                    53517   43598647 rss 90234880
-mmap runfd                         44479   43643126 rss 90234880
-start                              25734   43668860 rss 90234880
-guest start                     35515214   79184074 rss 113434624
-guest exit                         51356   79235430 rss 113434624
-cleanup                         60061645  139297075 rss 56160256
+KVM_CREATE_VM                   15915961   15915961 rss 62046208
+KVM_SET_TSS_ADDR                   53638   15969599 rss 62046208
+KVM_SET_IDENTITY_MAP_ADDR          33903   16003502 rss 62046208
+mmap guest ram                     34271   16037773 rss 62046208
+KVM_SET_USER_MEMORY_REGION        113231   16151004 rss 62046208
+KVM_CREATE_VCPU                   507745   16658749 rss 62046208
+init sreg                          59081   16717830 rss 62046208
+init reg                           24656   16742486 rss 62046208
+init cpuid                         71225   16813711 rss 62046208
+init msrs                          39080   16852791 rss 62046208
+read bzImage                      418599   17271390 rss 62046208
+load kernel image                1053564   18324954 rss 63750144
+set bootparams                     18668   18343622 rss 63750144
+read initrd                      3305841   21649463 rss 63750144
+load initrd                      8082051   29731514 rss 78168064
+load bootparams                    40560   29772074 rss 78168064
+mmap runfd                         35785   29807859 rss 78168064
+start                              15778   29823637 rss 78168064
+guest start                     36013545   65837182 rss 101367808
+guest exit                         51284   65888466 rss 101367808
+cleanup                         61857710  127746176 rss 62046208
 ```
 
 This shows timing at steady state from running the compiled version of vmm.js against an initrd using the init.js JavaScript program compiled to a static binary.
@@ -95,15 +97,6 @@ This shows timing at steady state from running the compiled version of vmm.js ag
   - this is with ```lz4``` kernel compression. with ```gzip``` this takes ```~60 ms``` and with lzma ```~200 ms```
 - cleaning up the guest memory, unmapping memory mapped files and closing file descriptors takes ```~60 ms```
 - there are no memory leaks. if we run continually we can see memory does not increase apart from some ```3-4 MB``` of v8 garbage that accumulates every 5 seconds or so before being freed by GC
-
-just running one vm and then shutting down, and with debug logging turned off, the best time to run a vm seen under hyperfine is ```~103 ms```
-
-```shell
-$ hyperfine --warmup 10 ./vmm
-Benchmark 1: ./vmm
-  Time (mean ± σ):     132.4 ms ±  12.2 ms    [User: 32.0 ms, System: 21.2 ms]
-  Range (min … max):   102.7 ms … 150.7 ms    21 runs
-```
 
 ## todo
 
