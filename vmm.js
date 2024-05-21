@@ -391,9 +391,12 @@ debug('open /dev/kvm')
 //const cmdline = cstr('i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd ro selinux=0 mitigations=off noapic pci=off nomodules random.trust_cpu=on audit=0 panic=-1 zswap.enabled=0 console=ttyS0,115200 acpi=off')
 const cmdline = cstr('ro selinux=0 mitigations=off random.trust_cpu=on panic=-1 console=hvc0 quiet')
 last = lo.hrtime()
+run_vm(kvm_fd)
+/*
 while (1) {
   run_vm(kvm_fd)
   console.log('')
   lo.core.usleep(1000000)
   last = boot_time = lo.hrtime()
 }
+*/
