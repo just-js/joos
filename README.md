@@ -29,7 +29,7 @@ lo vmm.js
 
 ### init.c
 
-- guest vm allocated 4 MB RAM
+- guest vm allocated 40 MB RAM
 
 ```shell
 KVM_CREATE_VM                   15870335   15870335 rss 48254976
@@ -58,6 +58,8 @@ cleanup                         41463018   95440057 rss 48254976
 This shows timing at steady state from running the compiled version of vmm.js against an initrd using the init.c c program.
 
 ### init.js
+
+- guest vm allocated 80 MB RAM
 
 ```shell
 KVM_CREATE_VM                   15915961   15915961 rss 62046208
