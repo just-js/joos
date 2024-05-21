@@ -36,7 +36,7 @@ This shows timing at steady state from running the compiled version of vmm.js ag
 
 Some things to note:
 
-- takes ```~1.6 ms``` to create the VM using the ```KVM_CREATEVM``` ioctl
+- takes ```~16 ms``` to create the VM using the ```KVM_CREATEVM``` ioctl
 - takes ```~0.5 ms``` to create a VCPU
 - ```bzImage``` is ```2.3 MB``` using LZ4 compression and takes ```~0.5 ms``` to read from ```/dev/shm```
 - it takes ```~1.4 ms``` to set boot options and copy the ```bzImage``` into guest memory
