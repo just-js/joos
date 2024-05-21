@@ -7,7 +7,7 @@
 
 #define MAGIC_VALUE_SIGNAL_GUEST_BOOT_COMPLETE 123
 
-void mmio_signal (void) {
+int main () {
   unsigned long FIRST_ADDR_PAST_32BITS = (1UL << 32);
   unsigned long MEM_32BIT_GAP_SIZE = (768UL << 20);
   int fd = open("/dev/mem", (O_RDWR | O_SYNC | O_CLOEXEC));
@@ -20,14 +20,9 @@ void mmio_signal (void) {
     FIRST_ADDR_PAST_32BITS - MEM_32BIT_GAP_SIZE);
   *map_base = MAGIC_VALUE_SIGNAL_GUEST_BOOT_COMPLETE;
   msync(map_base, mapped_size, MS_SYNC);
+  *map_base = MAGIC_VALUE_SIGNAL_GUEST_BOOT_COMPLETE;
+  msync(map_base, mapped_size, MS_SYNC);
   munmap(map_base, mapped_size);
   close(fd);
-}
-
-int main () {
-  mmio_signal();
-  sync();
-  mmio_signal();
-  sync();
   reboot(LINUX_REBOOT_CMD_HALT);
 }

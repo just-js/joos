@@ -274,15 +274,12 @@ function handle_io (io) {
       handle_serial_out(data, offset, port - COM1_PORT_BASE, size, count)
       return
     }
-//    console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
   } else if (direction === KVM_EXIT_IO_IN) {
     if (port >= COM1_PORT_BASE && port < COM1_PORT_BASE + COM1_PORT_SIZE) {
       handle_serial_in(data, offset, port - COM1_PORT_BASE, size, count)
       return
     }
-//    console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
   }
-//  console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
 }
 
 function run_vm (kvm_fd) {
@@ -332,12 +329,10 @@ const KVM_CPUID_SIGNATURE = 1073741824
 const KVM_CPUID_FEATURES = 1073741825
 const KVM_SET_CPUID2 = 1074310800
 const KVM_GET_SUPPORTED_CPUID = 3221794309
-
 const KVM_SET_TSS_ADDR = 44615
 const KVM_SET_IDENTITY_MAP_ADDR = 1074310728
 const KVM_CREATE_IRQCHIP = 44640
 const KVM_CREATE_PIT2 = 1077980791
-
 const CAN_USE_HEAP = 128
 const KEEP_SEGMENTS = 64
 const ISA_START_ADDRESS = 655360
@@ -361,30 +356,24 @@ const kvm_msrs_size = 8
 const kvm_msr_entry_size = 16
 const COM1_PORT_BASE = 0x03f8
 const COM1_PORT_SIZE = 8
-//const RAM_SIZE = 80 * 1024 * 1024
-const RAM_SIZE = 40 * 1024 * 1024
+//const RAM_SIZE = 70 * 1024 * 1024
+const RAM_SIZE = 32 * 1024 * 1024
 const RAM_BASE = 0
 const UART_TX = 0
 const UART_LSR = 5
 const UART_LSR_TEMT = 0x40
 const UART_LSR_THRE = 0x20
 const LSR = UART_LSR_TEMT | UART_LSR_THRE
-
 const hdr_off = 0x1f1
 const e820_entries_off =  0x1e8
 const e820_table_off = 0x2d0
-
 const registers = [
-  'rax', 'rbx', 'rcx', 'rdx',
-  'rsi', 'rdi', 'rsp', 'rbp',
-  'r8', 'r9', 'r10', 'r11',
-  'r12', 'r13', 'r14', 'r15',
-  'rip', 'rflags'
+  'rax', 'rbx', 'rcx', 'rdx', 'rsi', 'rdi', 'rsp', 'rbp', 'r8', 'r9', 'r10', 
+  'r11', 'r12', 'r13', 'r14', 'r15', 'rip', 'rflags'
 ].reduce((p, c, i) => {
   p[c] = i * 8
   return p
 }, {})
-
 let last = lo.start
 let boot_time = last
 debug('boot runtime')
@@ -393,16 +382,11 @@ assert(kvm_fd > 0)
 debug('open /dev/kvm')
 //const console_cmd = lo.args[2] || 'ttyS0,115200'
 const console_cmd = lo.args[2] || 'hvc0'
-//const console_cmd = 'hvc0'
-//const cmdline = cstr('i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd ro selinux=0 mitigations=off noapic pci=off nomodules random.trust_cpu=on audit=0 panic=-1 zswap.enabled=0 console=ttyS0,115200 acpi=off')
 const cmdline = cstr(`ro reboot=k i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd noapic mitigations=off random.trust_cpu=on panic=-1 console=${console_cmd} quiet`)
 last = lo.hrtime()
-//run_vm(kvm_fd)
-
 while (1) {
   run_vm(kvm_fd)
   console.log('')
   lo.core.usleep(1000000)
   last = boot_time = lo.hrtime()
 }
-
