@@ -1,4 +1,4 @@
-const bindings = ['core', 'fsmount']
+const bindings = ['core', 'fsmount', 'net']
 const libs = []
 const embeds = []
 const target = 'init' 

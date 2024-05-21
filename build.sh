@@ -11,7 +11,7 @@ if [ ! -f "build/linux-$RELEASE/arch/x86/boot/bzImage" ]; then
   fi
   cp .config.$RELEASE build/linux-$RELEASE/.config
   cd build/linux-$RELEASE/
-  make ARCH=x86 vmlinux bzImage -j $(nproc --all)
+  CC="ccache gcc" make ARCH=x86 vmlinux bzImage -j $(nproc --all)
   cd ../../
 fi
 #LO_CACHE=1 CC="ccache gcc" CXX="ccache g++" LINK="mold -run g++" lo build runtime init

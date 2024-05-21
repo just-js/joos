@@ -41,12 +41,14 @@ function create_vm (kvm_fd, vm_fd, ram_size = RAM_SIZE, ram_base = RAM_BASE) {
   assert(ioctl3(vm_fd, KVM_SET_IDENTITY_MAP_ADDR, map_address.ptr) === 0)
   debug('KVM_SET_IDENTITY_MAP_ADDR')
 
-//  assert(ioctl2(vm_fd, KVM_CREATE_IRQCHIP, 0) === 0)
-//  debug('KVM_CREATE_IRQCHIP')
+  if (console_cmd !== 'hvc0') {
+    assert(ioctl2(vm_fd, KVM_CREATE_IRQCHIP, 0) === 0)
+    debug('KVM_CREATE_IRQCHIP')
 
-//  const pit_config = ptr(new Uint8Array(8))
-//  assert(ioctl3(vm_fd, KVM_CREATE_PIT2, pit_config.ptr) === 0)
-//  debug('KVM_CREATE_PIT2')
+    const pit_config = ptr(new Uint8Array(8))
+    assert(ioctl3(vm_fd, KVM_CREATE_PIT2, pit_config.ptr) === 0)
+    debug('KVM_CREATE_PIT2')
+  }
 
   // mmap guest memory
   const mem_ptr = assert(mmap(0, ram_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0))
@@ -272,15 +274,15 @@ function handle_io (io) {
       handle_serial_out(data, offset, port - COM1_PORT_BASE, size, count)
       return
     }
-    //console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
+//    console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
   } else if (direction === KVM_EXIT_IO_IN) {
     if (port >= COM1_PORT_BASE && port < COM1_PORT_BASE + COM1_PORT_SIZE) {
       handle_serial_in(data, offset, port - COM1_PORT_BASE, size, count)
       return
     }
-    //console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
+//    console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
   }
-  //console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
+//  console.log(`io.${direction === KVM_EXIT_IO_OUT ? 'out' : 'in'} ${port} : ${count} of ${size}`)
 }
 
 function run_vm (kvm_fd) {
@@ -388,8 +390,11 @@ debug('boot runtime')
 const kvm_fd = open('/dev/kvm', O_RDWR)
 assert(kvm_fd > 0)
 debug('open /dev/kvm')
+//const console_cmd = lo.args[2] || 'ttyS0,115200'
+const console_cmd = lo.args[2] || 'hvc0'
+//const console_cmd = 'hvc0'
 //const cmdline = cstr('i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd ro selinux=0 mitigations=off noapic pci=off nomodules random.trust_cpu=on audit=0 panic=-1 zswap.enabled=0 console=ttyS0,115200 acpi=off')
-const cmdline = cstr('ro selinux=0 mitigations=off random.trust_cpu=on panic=-1 console=hvc0 quiet')
+const cmdline = cstr(`ro reboot=k pci=off selinux=0 nomodule i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd selinux=0 noapic mitigations=off random.trust_cpu=on panic=-1 console=${console_cmd} quiet`)
 last = lo.hrtime()
 run_vm(kvm_fd)
 /*
