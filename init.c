@@ -22,8 +22,8 @@ int main () {
   msync(map_base, mapped_size, MS_SYNC);
   *map_base = MAGIC_VALUE_SIGNAL_GUEST_BOOT_COMPLETE;
   msync(map_base, mapped_size, MS_SYNC);
-  munmap(map_base, mapped_size);
-  close(fd);
+//  munmap(map_base, mapped_size);
+//  close(fd);
 //  reboot(LINUX_REBOOT_CMD_HALT);
   return 0;
 }
