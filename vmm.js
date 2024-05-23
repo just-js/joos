@@ -226,11 +226,19 @@ function handle_serial_out (data, offset, ctrl, size, count) {
     putchar(data[offset])
     return
   }
+  if (ctrl === UART_IER) {
+    data[offset] = LSR
+    return
+  }
 }
 
 function handle_serial_in (data, offset, ctrl, size, count) {
   if (ctrl === UART_LSR) {
     data[offset] = LSR
+    return
+  }
+  if (ctrl === UART_IER) {
+//    data[offset] = LSR
     return
   }
 }
@@ -271,11 +279,13 @@ function handle_io (io) {
   const { direction, size, port, count, offset, data } = io
   if (direction === KVM_EXIT_IO_OUT) {
     if (port >= COM1_PORT_BASE && port < COM1_PORT_BASE + COM1_PORT_SIZE) {
+//      console.log(`out ${port - COM1_PORT_BASE} ${data[offset]}`)
       handle_serial_out(data, offset, port - COM1_PORT_BASE, size, count)
       return
     }
   } else if (direction === KVM_EXIT_IO_IN) {
     if (port >= COM1_PORT_BASE && port < COM1_PORT_BASE + COM1_PORT_SIZE) {
+//      console.log(`in  ${port - COM1_PORT_BASE} ${data[offset]}`)
       handle_serial_in(data, offset, port - COM1_PORT_BASE, size, count)
       return
     }
@@ -356,11 +366,12 @@ const kvm_msrs_size = 8
 const kvm_msr_entry_size = 16
 const COM1_PORT_BASE = 0x03f8
 const COM1_PORT_SIZE = 8
-//const RAM_SIZE = 70 * 1024 * 1024
-const RAM_SIZE = 32 * 1024 * 1024
+//const RAM_SIZE = 80 * 1024 * 1024
+const RAM_SIZE = 40 * 1024 * 1024
 const RAM_BASE = 0
 const UART_TX = 0
 const UART_LSR = 5
+const UART_IER = 1
 const UART_LSR_TEMT = 0x40
 const UART_LSR_THRE = 0x20
 const LSR = UART_LSR_TEMT | UART_LSR_THRE

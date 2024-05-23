@@ -24,5 +24,6 @@ int main () {
   msync(map_base, mapped_size, MS_SYNC);
   munmap(map_base, mapped_size);
   close(fd);
-  reboot(LINUX_REBOOT_CMD_HALT);
+//  reboot(LINUX_REBOOT_CMD_HALT);
+  return 0;
 }

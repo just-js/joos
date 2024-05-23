@@ -1,4 +1,5 @@
 import { getHeader } from 'lib/elf.js'
+import { dump } from 'lib/binary.js'
 
 const { ptr, little_endian } = lo
 
@@ -52,8 +53,10 @@ const vmlinux = read_vmlinux('/dev/shm/vmlinux')
 const { entrypoint, program_headers, header } = vmlinux
 const off = program_headers[4][0].offset
 const sz = program_headers[4][0].file_size
+console.log(JSON.stringify(program_headers, null, '  '))
 const elf_note_dv = new DataView(header.bytes.buffer, off, sz)
 const pvh_u8 = ptr(header.bytes.subarray(off, off + sz))
+console.log(dump(pvh_u8))
 const pvh_address = parse_elf_note(elf_note_dv, pvh_u8)
 console.log(`entrypoint ${entrypoint}`)
 console.log(`pvh address ${pvh_address}`)

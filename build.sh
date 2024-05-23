@@ -25,9 +25,10 @@ sudo $LO initrd.js
 mv init build/initrd/
 cd build/initrd/
 rm -f initrd.cpio
-find . | cpio -o -H newc | lz4 -l -9 > initrd.cpio
+find . | cpio -o -H newc | lz4 -l -9 > ../initrd.cpio
+#find . | cpio -o -H newc > ../initrd.cpio
 #find . -print0 | cpio --null --create --verbose --format=newc > initrd.cpio
-mv initrd.cpio ../
+#mv initrd.cpio ../
 cd ../../
 cp build/linux-$RELEASE/arch/x86/boot/bzImage /dev/shm/
 cp build/initrd.cpio /dev/shm/

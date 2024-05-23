@@ -1,0 +1,12 @@
+{
+  "boot-source": {
+    "kernel_image_path": "/dev/shm/vmlinux",
+    "boot_args": "ro reboot=k i8042.noaux i8042.nomux i8042.nopnp i8042.nokbd noapic mitigations=off random.trust_cpu=on panic=-1 console=ttyS0,115200 quiet",
+    "initrd_path": "/dev/shm/initrd.cpio"
+  },
+  "drives": [],
+  "machine-config": {
+    "vcpu_count": 1,
+    "mem_size_mib": 256
+  }
+}
