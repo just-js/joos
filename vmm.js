@@ -5,11 +5,11 @@ const {
 } = lo
 const { 
   open, close, mmap, munmap, free, read_file, ioctl2, ioctl3, putchar,
-  little_endian
+  little_endian, madvise
 } = core
 const {
   PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANONYMOUS, MAP_SHARED, EINTR, EAGAIN, 
-  O_RDWR
+  O_RDWR, MADV_HUGEPAGE
 } = core
 const { AY, AD, AG } = colors
 
@@ -18,10 +18,14 @@ const memset = wrap(new Uint32Array(2), core.memset, 3)
 const memmove = wrap(new Uint32Array(2), core.memmove, 3)
 const memcpy = wrap(new Uint32Array(2), core.memcpy, 3)
 
+const memory_flags = MAP_ANONYMOUS | MAP_PRIVATE
+
 function debug (message) {
   const now = lo.hrtime()
-  console.log(`${AY}${message.padEnd(30, ' ')}${AD}${(now - last).toString().padStart(10, ' ')} ${(now - boot_time).toString().padStart(10, ' ')} ${AG}rss${AD} ${mem()}`)
   last = now
+  if (debug_filters.length && !debug_filters.includes(message)) return now
+  console.log(`${AY}${message.padEnd(30, ' ')}${AD}${(now - last).toString().padStart(10, ' ')} ${(now - boot_time).toString().padStart(10, ' ')} ${AG}rss${AD} ${mem()}`)
+  return now
 }
 
 function alloca (size) {
@@ -51,8 +55,11 @@ function create_vm (kvm_fd, vm_fd, ram_size = RAM_SIZE, ram_base = RAM_BASE) {
   }
 
   // mmap guest memory
-  const mem_ptr = assert(mmap(0, ram_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0))
+  const mem_ptr = assert(mmap(0, ram_size, PROT_READ | PROT_WRITE, memory_flags, -1, 0))
   debug('mmap guest ram')
+  // huge pages is 17ms v 28 ms for 32 MB guest kernel boot
+  // https://blog.davidv.dev/minimizing-linux-boot-times.html
+  assert(madvise(mem_ptr, ram_size, MADV_HUGEPAGE) === 0)
 
   // create memory region
   const user_mem_region = alloca(kvm_userspace_memory_region_size)
@@ -300,7 +307,9 @@ function run_vm (kvm_fd) {
   const { cpu_fd, run } = cfg
   const io = new IO(run)
   let mmio_cnt = 0
-  debug('start')
+  // this is where firecracker starts the boot timer
+  const vm_started = debug('start')
+  let vm_booted = 0
   while (1) {
     const err = ioctl2(cpu_fd, KVM_RUN, 0)
     if (err === 0) {
@@ -310,7 +319,8 @@ function run_vm (kvm_fd) {
       } else if (reason === KVM_EXIT_MMIO) {
         mmio_cnt += 1
         if (mmio_cnt === 1) {
-          debug('guest start')
+          // this is the time firecracker is measuring
+          vm_booted = debug('guest start')
         } else if (mmio_cnt === 2) {
           debug('guest exit')
           break
@@ -326,6 +336,7 @@ function run_vm (kvm_fd) {
     if ((lo.errno != EINTR && lo.errno != EAGAIN)) break
   }
   destroy_vm(cfg)
+  console.log(`vm boot: ${vm_booted - vm_started}`)
 }
 
 const KVM_CREATE_VM = 44545
@@ -367,7 +378,8 @@ const kvm_msr_entry_size = 16
 const COM1_PORT_BASE = 0x03f8
 const COM1_PORT_SIZE = 8
 //const RAM_SIZE = 80 * 1024 * 1024
-const RAM_SIZE = 40 * 1024 * 1024
+//const RAM_SIZE = 32 * 1024 * 1024
+const RAM_SIZE = 32 * 1024 * 1024
 const RAM_BASE = 0
 const UART_TX = 0
 const UART_LSR = 5
@@ -387,6 +399,7 @@ const registers = [
 }, {})
 let last = lo.start
 let boot_time = last
+const debug_filters = ['guest exit', 'cleanup']
 debug('boot runtime')
 const kvm_fd = open('/dev/kvm', O_RDWR)
 assert(kvm_fd > 0)
@@ -397,7 +410,6 @@ const cmdline = cstr(`ro reboot=k i8042.noaux i8042.nomux i8042.nopnp i8042.nokb
 last = lo.hrtime()
 while (1) {
   run_vm(kvm_fd)
-  console.log('')
   lo.core.usleep(1000000)
   last = boot_time = lo.hrtime()
 }
